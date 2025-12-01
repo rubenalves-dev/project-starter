@@ -1,17 +1,23 @@
 <script lang="ts">
-	import { untrack } from "svelte";
-	import Input from "../input/input.svelte";
+	import { untrack } from 'svelte';
+	import Input from '../input/input.svelte';
 
 	type Props = {
 		color: string;
 		name: string;
 		values?: string[];
 	};
-	let { color, name = $bindable<string>(""), values = $bindable<string[]>([])}: Props = $props();
+	let { color, name = $bindable<string>(''), values = $bindable<string[]>([]) }: Props = $props();
 
-    const TOTAL_COLORS = 10;
-	const SHADE_AMOUNTS = Array.from({ length: TOTAL_COLORS/2 }, (_, i) => (i + 1) * (-90 / (TOTAL_COLORS / 2) + 1.25));
-	const DARK_SHADE_AMOUNTS = Array.from({ length: TOTAL_COLORS/2 }, (_, i) => (i + 1) * (90 / (TOTAL_COLORS / 2) - 3));
+	const TOTAL_COLORS = 10;
+	const SHADE_AMOUNTS = Array.from(
+		{ length: TOTAL_COLORS / 2 },
+		(_, i) => (i + 1) * (-90 / (TOTAL_COLORS / 2) + 1.25)
+	);
+	const DARK_SHADE_AMOUNTS = Array.from(
+		{ length: TOTAL_COLORS / 2 },
+		(_, i) => (i + 1) * (90 / (TOTAL_COLORS / 2) - 3)
+	);
 
 	let lightenColorShades = $derived.by(() => {
 		const shades = [0, ...SHADE_AMOUNTS].map((amount) => {
@@ -70,29 +76,39 @@
 	}
 
 	$effect(() => {
-  values = Array.from(new Set([...untrack(() => lightenColorShades).reverse(), color, ...darkenColorShades]))
-	})
+		values = Array.from(
+			new Set([...untrack(() => lightenColorShades).reverse(), color, ...darkenColorShades])
+		);
+	});
 </script>
 
 <div class="color-shader">
-<div class="flex items-center space-x-4 mb-6">
-	<Input type="color" bind:value={color} class="h-10 w-10 p-0 border-none" />
-	<div>
-		<Input bind:value={color} class="border p-2 rounded w-32 font-mono" />
-		<Input bind:value={name} class="capitalize" />
+	<div class="mb-6 flex items-center space-x-4">
+		<Input type="color" bind:value={color} class="h-10 w-10 border-none p-0" />
+		<div>
+			<Input bind:value={color} class="w-32 rounded border p-2 font-mono" />
+			<Input bind:value={name} class="capitalize" />
+		</div>
 	</div>
-</div>
 
-<div class="flex flex-col gap-y-4">
-	<div class="flex space-x-1">
-		{#each lightenColorShades as shade, i (i)}
-			<div class="w-10 aspect-square rounded" style:background={shade} title={shade}></div>
-		{/each}
+	<div class="flex flex-col gap-y-4">
+		<div class="flex space-x-1">
+			{#each lightenColorShades as shade, i (i)}
+				<div
+					class="aspect-square w-10 rounded"
+					style:background={shade}
+					title={shade}
+				></div>
+			{/each}
+		</div>
+		<div class="flex space-x-1">
+			{#each darkenColorShades.reverse() as shade, i (i)}
+				<div
+					class="aspect-square w-10 rounded"
+					style:background={shade}
+					title={shade}
+				></div>
+			{/each}
+		</div>
 	</div>
-	<div class="flex space-x-1">
-		{#each darkenColorShades.reverse() as shade, i (i)}
-			<div class="w-10 aspect-square rounded" style:background={shade} title={shade}></div>
-		{/each}
-	</div>
-</div>
 </div>
